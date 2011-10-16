@@ -34,7 +34,7 @@ def main():
     router = Router(source_dir, renderer)
     writer = Writer(build_dir)
 
-    writer(router())
+    writer(router)
 
 
 if __name__ == "__main__":

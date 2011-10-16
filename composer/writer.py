@@ -14,6 +14,13 @@ log = logging.getLogger(__name__)
 
 class Writer(object):
     """
+    Callable object that creates a static filesystem structure to mimic the
+    desired url structures.
+
+    The Writer doesn't know about anything except the base path of where your
+    desired url structure will live. You call the resulting writer with a router
+    and it blindly traverses the routes and content returned from the router.
+
     :param base_path:
         Base filesystem path for where the static HTML structure should be
         created.

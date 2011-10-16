@@ -1,5 +1,7 @@
 Compose dynamic templates and markup into a static website.
 
+Used to generate `shazow.net <http://shazow.net>`_.
+
 Usage
 =====
 
@@ -9,6 +11,8 @@ Usage
     $ touch templates/index.html.mako
     $ composer --build-dir ./build --source-dir ./templates
     $ find build
+    build
+    build/index.html
 
 
 Components

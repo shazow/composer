@@ -28,19 +28,14 @@ class Writer(object):
     def __init__(self, base_path):
         self.base_path = base_path
 
-        try:
+        if not os.path.exists(base_path):
             os.makedirs(base_path)
-        except os.error:
-            pass # Already exists, honeybadger doesn't care.
-
 
     def manifest_url(self, url, content, index_file='index.html'):
         url_path = os.path.join(self.base_path, url)
 
-        try:
+        if not os.path.exists(url_path):
             os.makedirs(url_path)
-        except os.error:
-            pass # Already exists, honeybadger doesn't care.
 
         fp = open(os.path.join(url_path, index_file), 'w')
         fp.write(content)

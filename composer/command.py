@@ -11,8 +11,7 @@ import logging
 import os
 
 
-from .renderer import MakoRenderer
-from .router import Router
+from .traverser import MakoTraverser
 from .writer import Writer
 
 
@@ -30,11 +29,10 @@ def main():
     source_dir = os.path.abspath(args.source_dir)
     build_dir = os.path.abspath(args.build_dir)
 
-    renderer = MakoRenderer(source_dir)
-    router = Router(source_dir, renderer)
+    traverser = MakoTraverser(source_dir)
     writer = Writer(build_dir)
 
-    writer(router)
+    writer(traverser)
 
 
 if __name__ == "__main__":

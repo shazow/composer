@@ -12,6 +12,10 @@ import os
 log = logging.getLogger(__name__)
 
 
+class TraverserError(BaseException):
+    pass
+
+
 class Traverser(object):
     """
     Iterable object that yields tuples the content for each desired url. ::
@@ -66,3 +70,21 @@ class MakoTraverser(Traverser):
 
             yield url, content
 
+
+class ManifestTraverser(Traverser):
+    def __init__(self, manifest_path, filters):
+        self.filters = filters
+        self.manifest_path = manifest_path
+
+        if not os.path.exists(manifest_path):
+            raise TraverserError("Path does not exist: %s" % manifest_path)
+
+    def __iter__(self):
+        for line in open(self.manifest_path):
+            file_path, url, filters = line.split()
+
+            content = open(file_path).read()
+            for filter_name in filters.split(','):
+                content = self.filters[filter_name](content)
+
+            yield url, content

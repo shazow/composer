@@ -23,22 +23,17 @@ def main():
 
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true')
 
-    parser.add_argument('-b', '--build-dir', dest='build_dir', required=True)
-    parser.add_argument('-s', '--source-dir', dest='source_dir', required=True)
-
     args = parser.parse_args()
 
     if args.verbose:
         logging.basicConfig(format='%(asctime)s %(levelname)-5.5s %(message)s',
                             level=logging.DEBUG)
 
-    source_dir = os.path.abspath(args.source_dir)
-    build_dir = os.path.abspath(args.build_dir)
+    import settings
 
-    traverser = MakoTraverser(source_dir)
-    writer = Writer(build_dir)
+    writer = Writer(settings.build_path)
 
-    writer(traverser)
+    writer(settings.traverser)
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ class Writer(object):
         if not os.path.exists(base_path):
             os.makedirs(base_path)
 
-    def manifest_url(self, url, content, index_file='index.html'):
+    def materialize_url(self, url, content, index_file='index.html'):
         url_path = os.path.join(self.base_path, url)
 
         if not os.path.exists(url_path):
@@ -46,6 +46,6 @@ class Writer(object):
 
         for url, content in router:
             log.info("Writing url: ", url)
-            self.manifest_url(url, content)
+            self.materialize_url(url, content)
 
 

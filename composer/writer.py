@@ -32,7 +32,7 @@ class Writer(object):
             os.makedirs(base_path)
 
     def materialize_url(self, url, content, index_file='index.html'):
-        url_path = os.path.join(self.base_path, url)
+        url_path = os.path.join(self.base_path, url.lstrip('/'))
 
         if not os.path.exists(url_path):
             os.makedirs(url_path)
@@ -45,7 +45,5 @@ class Writer(object):
     def __call__(self, router):
 
         for url, content in router:
-            log.info("Writing url: ", url)
+            log.info('Writing url: %s', '/%s' % url)
             self.materialize_url(url, content)
-
-

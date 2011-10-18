@@ -1,0 +1,1 @@
+{"default": {"title": "Hello"}, "routes": [{"url": "foo", "file": "foo.mako", "filters": ["mako"]}]}

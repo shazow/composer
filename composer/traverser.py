@@ -5,6 +5,7 @@
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
 
+import itertools
 import logging
 import os
 
@@ -48,6 +49,11 @@ class Traverser(object):
     def __iter__(self):
         for path in self._walk_suffix('.html'):
             yield self._invent_url(path, 'index.html'), open(path).read()
+
+
+def compound_traversers(*traversers):
+    return itertools.chain.from_iterable(traversers)
+
 
 
 class MakoTraverser(Traverser):

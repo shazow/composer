@@ -43,8 +43,9 @@ def main():
 
     routes = []
     for route in data.get('routes', []):
-        context = route.get('context', {})
+        context = {}
         context.update(default_context)
+        context.update(route.get('context', {}))
 
         route['context'] = context
         routes.append(route)

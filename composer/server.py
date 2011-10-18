@@ -19,11 +19,23 @@ class ComposerApp(object):
     def render_route(self, route, start_response):
         start_response('200 OK', [('Content-Type', 'text/html')])
 
-        file_path = os.path.join(self.app_environ.get('base_path', ''), route.get('file'))
+        path = lambda p: os.path.join(self.app_environ.get('base_path', ''), p)
+
+        file_path = path(route.get('file'))
         content = open(file_path).read()
 
-        for filter_name in route.get('filters'):
-            content = filters[filter_name](content, self.app_environ, route)
+        for filter in route.get('filters'):
+            context = {}
+            context.update(route.get('context', {}))
+
+            if isinstance(filter, dict):
+                # FIXME: This is hacky.
+                context.update(filter)
+                context['body'] = content
+                content = open(path(filter['file'])).read()
+                filter = filter['id']
+
+            content = filters[filter](content, self.app_environ, route, **context)
 
         return [str(content)]
 

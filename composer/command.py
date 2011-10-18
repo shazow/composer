@@ -14,12 +14,8 @@ import json
 
 from .server import serve
 
+
 log = logging.getLogger(__name__)
-
-##
-
-
-##
 
 
 def main():

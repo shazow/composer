@@ -7,10 +7,10 @@
 from markdown import markdown
 
 
-def _markdown_filter(content, environ, route):
+def _markdown_filter(content, environ, route, **context):
     return markdown(content)
 
-def _mako_filter(content, environ, route):
+def _mako_filter(content, environ, route, **context):
     from mako.template import Template
     from mako.lookup import TemplateLookup
 
@@ -21,7 +21,7 @@ def _mako_filter(content, environ, route):
 
     t = Template(content, lookup=lookup)
 
-    content = t.render(**route.get('context'))
+    content = t.render(environ=environ, route=route, **context)
     return content
 
 

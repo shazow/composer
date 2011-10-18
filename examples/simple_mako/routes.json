@@ -1,1 +1,28 @@
-{"default_context": {"title": "Hello"}, "routes": [{"url": "foo", "file": "foo.mako", "filters": ["mako"]}]}
+{
+    "default_context": {
+        "title": "Hello"
+    },
+    "routes": [
+        {
+            "file": "foo.mako",
+            "filters": [
+                "mako"
+            ],
+            "url": "foo"
+        },
+        {
+            "context": {
+                "title": "Goodbye!"
+            },
+            "file": "posts/1.md",
+            "filters": [
+                "markdown",
+                {
+                    "file": "post.mako",
+                    "id": "mako"
+                }
+            ],
+            "url": "post/1"
+        }
+    ]
+}

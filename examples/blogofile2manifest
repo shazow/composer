@@ -24,9 +24,15 @@ class Blogofile2Manifest(object):
 
     def build_routes(self):
         self.routes = []
-        self.posts = {}
-        file = None
+        self.default_context = {}
+        self.manifest = {
+            "routes": self.routes,
+            "default_context": self.default_context,
+        }
 
+        self.posts = {}
+
+        file = None
         try:
             for file in self.walk_files():
                 self.process_file(file)
@@ -104,7 +110,7 @@ def main():
     args = parse_args()
     generator = Blogofile2Manifest(args.root)
     generator.build_routes()
-    print json.dumps(generator.routes)
+    print json.dumps(generator.manifest)
     return 0
 
 if __name__ == "__main__":

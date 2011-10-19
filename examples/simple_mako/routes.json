@@ -2,6 +2,12 @@
     "default_context": {
         "title": "Hello"
     },
+    "static": [
+        {
+            "url": "/static",
+            "path": "static"
+        }
+    ],
     "routes": [
         {
             "file": "foo.mako",

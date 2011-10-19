@@ -54,11 +54,22 @@ class ComposerApp(object):
 
 
 
-def serve(environ, host='localhost', port=8080, **kw):
+def serve(environ, host='localhost', port=8080, debug=True, **kw):
     from werkzeug.debug import DebuggedApplication
+    from werkzeug.wsgi import SharedDataMiddleware
     from werkzeug.serving import run_simple
 
+    path = lambda p: os.path.join(environ.get('base_path', ''), p)
+
     app = ComposerApp(environ)
-    app = DebuggedApplication(app, evalex=True)
+
+    static_routes = dict((r['url'], path(r['path'])) for r in environ.get('static', []))
+
+    log.info("Adding static routes:\n%r", static_routes)
+    app = SharedDataMiddleware(app, static_routes)
+
+    if debug:
+        app = DebuggedApplication(app, evalex=True)
+
     run_simple(host, port, app, **kw)
 

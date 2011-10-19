@@ -53,6 +53,7 @@ def main():
     environ = {
         'base_path': os.path.dirname(args.routes_file),
         'routes': routes,
+        'static': data.get('static', {}),
     }
 
     log.debug("Loaded environ: %r" , environ)

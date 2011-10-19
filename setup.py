@@ -24,6 +24,7 @@ version = VERSION
 
 requirements = [
     'mako',
+    'werkzeug',
 ]
 
 tests_requirements = requirements + [

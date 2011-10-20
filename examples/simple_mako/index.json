@@ -2,6 +2,12 @@
     "default_context": {
         "title": "Hello"
     },
+    "filters": {
+        "post": {
+            "class": "composer.filters:MakoContainer",
+            "kwargs": {"directories": ["."], "template": "post.mako"}
+        }
+    },
     "static": [
         {
             "url": "/static",
@@ -23,10 +29,7 @@
             "file": "posts/1.md",
             "filters": [
                 "markdown",
-                {
-                    "file": "post.mako",
-                    "id": "mako"
-                }
+                "post"
             ],
             "url": "post/1"
         }

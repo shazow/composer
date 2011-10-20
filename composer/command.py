@@ -54,6 +54,7 @@ def main():
         'base_path': os.path.dirname(args.routes_file),
         'routes': routes,
         'static': data.get('static', {}),
+        'filters': data.get('filters', {}),
     }
 
     log.debug("Loaded environ: %r" , environ)

@@ -5,6 +5,10 @@ Used to generate `shazow.net <http://shazow.net>`_.
 Usage
 =====
 
+Generate index file: ::
+
+    TODO
+
 Auto-reloading server: ::
 
     $ composer serve examples/simple_mako/index.json

@@ -51,6 +51,15 @@ class Writer(object):
     def _get_filter(self, id):
         return self.filters[id]
 
+    def path_to_route(self, path):
+        path = path.lstrip('/')
+
+        for route in self.app_environ.get('routes', []):
+            # TODO: Should we pre-index this in init?
+            if route.get('url') == path:
+                log.debug("Route matched: %s", path)
+                return route
+
     def render_route(self, route):
         self.app_environ['current_route'] = route
 
@@ -67,13 +76,9 @@ class Writer(object):
         return content
 
     def __call__(self, path):
-        path = path.lstrip('/')
-
-        for route in self.app_environ.get('routes', []):
-            # TODO: Should we pre-index this in init?
-            if route.get('url') == path:
-                log.debug("Route matched: %s", path)
-                return self.render_route(route)
+        route = self.path_to_route(path)
+        if route:
+            return self.render_route(route)
 
 
 class WSGIWriter(Writer):

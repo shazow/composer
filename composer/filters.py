@@ -15,9 +15,14 @@ class Filter(object):
 
 
 class Markdown(Filter):
+    def __init__(self, environ, **markdown_kw):
+        super(Markdown, self).__init__(environ)
+
+        import markdown2
+        self.markdowner = markdown2.Markdown(**markdown_kw).convert
+
     def __call__(self, content, **context):
-        from markdown import markdown
-        return markdown(content)
+        return self.markdowner(content)
 
 
 class Mako(Filter):

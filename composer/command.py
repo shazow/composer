@@ -12,33 +12,33 @@ import os
 import json
 
 
-from .server import serve
 
 
 log = logging.getLogger(__name__)
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+def serve_command(environ):
+    from .server import serve
 
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true')
+    extra_files = []
 
-    command_parser = parser.add_subparsers(dest='command')
+    index_file = environ.get('index_file')
+    if index_file:
+        extra_files.append(index_file)
 
-    serve_command = command_parser.add_parser('serve')
-    serve_command.add_argument(dest='routes_file', help='Routes file.')
+    serve(environ, use_reloader=True, extra_files=extra_files)
 
-    build_command = command_parser.add_parser('build')
-    build_command.add_argument(dest='routes_file', help='Routes file.')
 
-    args = parser.parse_args()
+def build_command(environ):
+    from .writer import FileWriter
 
-    if args.verbose:
-        logging.basicConfig(format='%(asctime)s %(levelname)-5.5s %(message)s',
-                            level=logging.DEBUG)
+    writer = FileWriter(environ)
 
-    data = json.load(open(args.routes_file))
+    for route in environ.get('routes', []):
+        writer(route['url'])
 
+
+def parse_environ(data):
     default_context = data.get('default_context', {})
 
     routes = []
@@ -50,20 +50,51 @@ def main():
         route['context'] = context
         routes.append(route)
 
+    index_file = data.get('index_file')
+
     environ = {
-        'base_path': os.path.dirname(args.routes_file),
+        'index_file': index_file,
+        'base_path': os.path.dirname(index_file or '.'),
         'routes': routes,
         'static': data.get('static', {}),
         'filters': data.get('filters', {}),
     }
 
+    return environ
+
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true')
+
+    command_parser = parser.add_subparsers(dest='command')
+
+    serve_parser = command_parser.add_parser('serve')
+    serve_parser.add_argument(dest='index_file', help='JSON index file.')
+
+    build_parser = command_parser.add_parser('build')
+    build_parser.add_argument(dest='index_file', help='JSON index file.')
+
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.basicConfig(format='%(asctime)s %(levelname)-5.5s %(message)s',
+                            level=logging.DEBUG)
+
+    data = json.load(open(args.index_file))
+    data['index_file'] = args.index_file
+
+    environ = parse_environ(data)
+
     log.debug("Loaded environ: %r" , environ)
 
     if args.command == 'serve':
-        serve(environ, use_reloader=True, extra_files=[args.routes_file])
+        serve_command(environ)
 
     elif args.command == 'build':
-        print "Not implemented yet."
+        build_command(environ)
 
 
 

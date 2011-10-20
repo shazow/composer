@@ -45,7 +45,6 @@ TODO
 ====
 
 #. Index generator
-#. Copy over static stuff
 #. Tests
 #. Docs
 #. Scaffolds (with Makefile)

@@ -21,20 +21,22 @@ class Markdown(Filter):
 
 
 class Mako(Filter):
-    def __init__(self, environ, **lookup_kw):
+    def __init__(self, environ, **template_kw):
         super(Mako, self).__init__(environ)
 
         from mako.lookup import TemplateLookup
 
         kw = dict(input_encoding='utf-8', output_encoding='utf-8', encoding_errors='replace')
-        kw.update(lookup_kw)
+        kw.update(template_kw)
 
-        self.lookup = TemplateLookup(**kw)
+        self.template_kw = kw
+
+        self.lookup = TemplateLookup(**self.template_kw)
 
 
     def __call__(self, content, **context):
         from mako.template import Template
-        t = Template(content, lookup=self.lookup)
+        t = Template(content, lookup=self.lookup, input_encoding='utf-8', output_encoding='utf-8', encoding_errors='replace')
 
         route = self.environ.get('current_route')
         return str(t.render(environ=self.environ, route=route, **context))

@@ -56,7 +56,7 @@ class Writer(object):
 
         for route in self.app_environ.get('routes', []):
             # TODO: Should we pre-index this in init?
-            if route.get('url') == path:
+            if route['url'].lstrip('/') == path:
                 log.debug("Route matched: %s", path)
                 return route
 
@@ -129,4 +129,11 @@ class FileWriter(Writer):
 
     def __call__(self, path):
         content = super(FileWriter, self).__call__(path)
-        self.materialize_url(path, content)
+
+        index_file = 'index.html'
+        if path.endswith('.html'):
+            # Leave .html files alone.
+            # TODO: Allow other pass-through extensions like .htm?
+            path, index_file = os.path.dirname(path), os.path.basename(path)
+
+        self.materialize_url(path, content, index_file)

@@ -5,6 +5,11 @@ Used to generate `shazow.net <http://shazow.net>`_.
 Usage
 =====
 
+Install: ::
+
+    $ pip install https://github.com/shazow/composer/tarball/master
+    $ pip install mako markdown2 # If you're using the built-in filters (optional)
+
 Generate index file: ::
 
     TODO

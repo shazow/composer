@@ -29,13 +29,24 @@ def serve_command(environ):
     serve(environ, use_reloader=True, extra_files=extra_files)
 
 
-def build_command(environ):
+def build_command(environ, build_path='build', clean_build_path=False):
+    from distutils.dir_util import copy_tree, remove_tree
     from .writer import FileWriter
 
-    writer = FileWriter(environ)
+    if clean_build_path:
+        log.info("Cleaning build path: %s", build_path)
+        if os.path.exists(build_path):
+            remove_tree(build_path)
+
+    writer = FileWriter(environ, build_path=build_path)
 
     for route in environ.get('routes', []):
         writer(route['url'])
+
+    for static in environ.get('static', []):
+        url_path = writer.materialize_url(static['url'])
+        file_path = os.path.join(environ.get('base_path', ''), static['file'])
+        copy_tree(file_path, url_path)
 
 
 def parse_environ(data):
@@ -76,6 +87,8 @@ def main():
 
     build_parser = command_parser.add_parser('build')
     build_parser.add_argument(dest='index_file', help='JSON index file.')
+    build_parser.add_argument('-b', '--build-path', dest='build_path', default='build')
+    build_parser.add_argument('-c', '--clean-build-path', dest='clean_build_path', action='store_true', help='Delete contents of build path before building into it.')
 
     args = parser.parse_args()
 
@@ -97,7 +110,7 @@ def main():
         serve_command(environ)
 
     elif args.command == 'build':
-        build_command(environ)
+        build_command(environ, build_path=args.build_path, clean_build_path=args.clean_build_path)
 
 
 

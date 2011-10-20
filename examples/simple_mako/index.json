@@ -11,7 +11,7 @@
     "static": [
         {
             "url": "/static",
-            "path": "static"
+            "file": "static"
         }
     ],
     "routes": [

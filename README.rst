@@ -41,8 +41,8 @@ TODO
 
 #. Index generator
 #. Copy over static stuff
-#. Scaffolds (with Makefile)
 #. Tests
 #. Docs
+#. Scaffolds (with Makefile)
 #. Everything else
 #. Ponies

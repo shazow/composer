@@ -96,37 +96,36 @@ class WSGIWriter(Writer):
 
 class FileWriter(Writer):
     """
-    Composer Writer who creates a static filesystem structure to mimic the
-    desired url structures.
+    Writer who creates a static filesystem structure to mimic the desired url
+    structures.
     """
-    def __init__(self, app_environ):
+    def __init__(self, app_environ, build_path='build'):
         super(FileWriter, self).__init__(app_environ)
 
-        self.export_path = app_environ.get('export_path')
-        if self.export_path:
-            self.export_path = os.path.join(app_environ.get('base_path', ''),
-                                            self.export_path)
-        else:
-            self.export_path = 'build'
+        self.build_path = build_path
 
-        if not os.path.exists(self.export_path):
-            os.makedirs(self.export_path)
+        if not os.path.exists(self.build_path):
+            os.makedirs(self.build_path)
 
+    def materialize_url(self, url, content=None, index_file='index.html'):
+        url = url.lstrip('/')
 
-    def materialize_url(self, url, content, index_file='index.html'):
-        url_path = os.path.join(self.export_path, url.lstrip('/'))
-        file_path = os.path.join(url_path, index_file)
+        url_path = os.path.join(self.build_path, url)
+        file_path = index_file and os.path.join(url_path, index_file)
 
-        log.info("Materializing: /%s -> /%s",
-                 url, os.path.relpath(file_path, self.export_path))
+        log.info("Materializing: /%s", url)
 
         if not os.path.exists(url_path):
             os.makedirs(url_path)
+
+        if not file_path or not content:
+            return url_path
 
         fp = open(file_path, 'w')
         fp.write(content)
         fp.close()
 
+        return file_path
 
     def __call__(self, path):
         content = super(FileWriter, self).__call__(path)

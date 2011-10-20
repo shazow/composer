@@ -21,7 +21,7 @@ def serve(environ, host='localhost', port=8080, debug=True, **kw):
 
     app = WSGIWriter(environ)
 
-    static_routes = dict((r['url'], path(r['path'])) for r in environ.get('static', []))
+    static_routes = dict((r['url'], path(r['file'])) for r in environ.get('static', []))
 
     log.info("Adding static routes: %r", static_routes)
     app = SharedDataMiddleware(app, static_routes)

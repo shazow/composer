@@ -23,7 +23,6 @@ fp.close()
 version = VERSION
 
 requirements = [
-    'mako',
     'werkzeug',
 ]
 

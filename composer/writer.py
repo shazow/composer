@@ -72,7 +72,7 @@ class Writer(object):
         for route in self.app_environ.get('routes', []):
             # TODO: Should we pre-index this in init?
             if route.get('url') == path:
-                log.info("Route matched: %s", path)
+                log.debug("Route matched: %s", path)
                 return self.render_route(route)
 
 
@@ -97,9 +97,12 @@ class FileWriter(Writer):
     def __init__(self, app_environ):
         super(FileWriter, self).__init__(app_environ)
 
-        self.export_path = os.path.join(app_environ.get('base_path', ''),
-                                        app_environ.get('export_path',
-                                                        'build'))
+        self.export_path = app_environ.get('export_path')
+        if self.export_path:
+            self.export_path = os.path.join(app_environ.get('base_path', ''),
+                                            self.export_path)
+        else:
+            self.export_path = 'build'
 
         if not os.path.exists(self.export_path):
             os.makedirs(self.export_path)

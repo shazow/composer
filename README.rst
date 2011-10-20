@@ -5,15 +5,15 @@ Used to generate `shazow.net <http://shazow.net>`_.
 Usage
 =====
 
-TODO. For now: ::
+Auto-reloading server: ::
 
     $ composer serve examples/simple_mako/index.json
     $ open http://localhost:8080/foo
 
-Soon: ::
+Static build: ::
 
     $ composer build examples/simple_mako/index.json
-    $ open build/index.html
+    $ open build/foo/index.html
 
 Components
 ==========
@@ -35,11 +35,10 @@ what it does best.
 TODO
 ====
 
-* Index generator
-* Build
-* Copy over static stuff
-* Scaffolds (with Makefile)
-* Tests
-* Docs
-* Everything else
-* Ponies
+#. Index generator
+#. Copy over static stuff
+#. Scaffolds (with Makefile)
+#. Tests
+#. Docs
+#. Everything else
+#. Ponies

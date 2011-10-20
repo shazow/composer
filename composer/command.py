@@ -67,7 +67,7 @@ def parse_environ(data):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true')
+    parser.add_argument('-v', '--verbose', dest='verbose', action='count')
 
     command_parser = parser.add_subparsers(dest='command')
 
@@ -81,7 +81,10 @@ def main():
 
     if args.verbose:
         logging.basicConfig(format='%(asctime)s %(levelname)-5.5s %(message)s',
-                            level=logging.DEBUG)
+                            level=logging.INFO)
+
+    if args.verbose > 1:
+        logging.setLevel(logging.DEBUG)
 
     data = json.load(open(args.index_file))
     data['index_file'] = args.index_file

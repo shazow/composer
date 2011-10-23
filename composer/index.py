@@ -11,6 +11,21 @@ import fnmatch
 from .filters import default_filters
 
 
+# TODO: Use this to add route prev/current/next tracking?
+def iter_consume(i, num=0):
+    if num < 0:
+        for _ in xrange(-num):
+            yield None
+
+    elif num > 0:
+        for _ in xrange(num):
+            next(i)
+
+    for o in i:
+        yield o
+
+
+
 class Index(object):
     """
     :param base_path:

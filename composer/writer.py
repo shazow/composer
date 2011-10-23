@@ -28,14 +28,11 @@ class Writer(object):
         self.index = index
 
     def render_route(self, route):
-        self.index.current_route = route # XXX: Do something about this
-
         file_path = route.file
         content = open(file_path).read()
 
         for filter_id in route.filters:
-            context = route.context or {}
-            content = self.filters[filter_id](content, **context)
+            content = self.filters[filter_id](content, route=route)
 
         return content
 

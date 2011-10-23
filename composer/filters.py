@@ -10,7 +10,14 @@ class Filter(object):
     def __init__(self, index):
         self.index = index
 
-    def __call__(self, content, context=None):
+    def __call__(self, content, route=None):
+        """
+        :param content:
+            String to filter, such as the contents of a file.
+
+        :param route:
+            Route object that contains a ``context`` property.
+        """
         return content
 
 
@@ -21,7 +28,7 @@ class Markdown(Filter):
         import markdown2
         self.markdowner = markdown2.Markdown(**markdown_kw).convert
 
-    def __call__(self, content, context=None):
+    def __call__(self, content, route=None):
         return self.markdowner(content)
 
 
@@ -38,11 +45,11 @@ class Mako(Filter):
         self.lookup = TemplateLookup(**self.template_kw)
 
 
-    def __call__(self, content, context=None):
+    def __call__(self, content, route=None):
         from mako.template import Template
         t = Template(content, lookup=self.lookup, input_encoding='utf-8', output_encoding='utf-8', encoding_errors='replace')
 
-        return str(t.render(index=self.index, **context))
+        return str(t.render(index=self.index, route=route))
 
 
 class MakoContainer(Mako):
@@ -57,8 +64,8 @@ class MakoContainer(Mako):
 
         self.template = self.lookup.get_template(path(template))
 
-    def __call__(self, content, context=None):
-        return str(self.template.render(index=self.index, body=content, **context))
+    def __call__(self, content, route=None):
+        return str(self.template.render(index=self.index, body=content, route=route))
 
 
 default_filters = {

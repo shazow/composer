@@ -9,9 +9,6 @@ import os
 import logging
 
 
-from .filters import default_filters
-
-
 log = logging.getLogger(__name__)
 
 
@@ -24,59 +21,26 @@ def import_object(path):
 class Writer(object):
     """
     Writer only cares about the ``filters`` and ``base_path`` in the
-    ``app_environ``. It doesn't know anything about the routes, but only knows
+    ``index``. It doesn't know anything about the routes, but only knows
     how to render them once they're received.
     """
-    def __init__(self, app_environ):
-        self.app_environ = app_environ
-
-        filters = {}
-        filters.update(default_filters)
-        filters.update(app_environ.get('filters', {}))
-
-        self._load_filters(filters)
-
-    def _load_filters(self, filters):
-        self.filters = {}
-
-        for filter_id, filter_conf in filters.iteritems():
-            filter_cls = filter_conf['class']
-            if isinstance(filter_cls, basestring):
-                filter_cls = import_object(filter_cls)
-
-            self.filters[filter_id] = filter_cls(self.app_environ, **filter_conf.get('kwargs', {}))
-
-        log.debug("Loaded filters: %r" % self.filters.keys())
-
-    def _get_filter(self, id):
-        return self.filters[id]
-
-    def path_to_route(self, path):
-        path = path.lstrip('/')
-
-        for route in self.app_environ.get('routes', []):
-            # TODO: Should we pre-index this in init?
-            if route['url'].lstrip('/') == path:
-                log.debug("Route matched: %s", path)
-                return route
+    def __init__(self, index):
+        self.index = index
 
     def render_route(self, route):
-        self.app_environ['current_route'] = route
+        self.index.current_route = route # XXX: Do something about this
 
-        path = lambda p: os.path.join(self.app_environ.get('base_path', ''), p)
-
-        file_path = path(route['file'])
+        file_path = route.file
         content = open(file_path).read()
 
-        for filter_id in route.get('filters'):
-            context = {}
-            context.update(route.get('context', {}))
+        for filter_id in route.filters:
+            context = route.context or {}
             content = self.filters[filter_id](content, **context)
 
         return content
 
     def __call__(self, path):
-        route = self.path_to_route(path)
+        route = self.index.get_route(path)
         if route:
             return self.render_route(route)
 
@@ -99,8 +63,8 @@ class FileWriter(Writer):
     Writer who creates a static filesystem structure to mimic the desired url
     structures.
     """
-    def __init__(self, app_environ, build_path='build'):
-        super(FileWriter, self).__init__(app_environ)
+    def __init__(self, index, build_path='build'):
+        super(FileWriter, self).__init__(index)
 
         self.build_path = build_path
 

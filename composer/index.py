@@ -84,13 +84,13 @@ class Index(object):
             for file in filenames:
                 yield filenames
 
-    def _absolute_path(self, path):
+    def absolute_path(self, path):
         """
         Get the absolute path in respect to the Index base path.
         """
         return os.path.join(self.base_path, path)
 
-    def _relative_path(self, path, start='.'):
+    def relative_path(self, path, start='.'):
         """
         Get the relative path in respect to the Index base path + start.
         """
@@ -107,6 +107,14 @@ class Index(object):
         Yield Static objects."
         """
         pass
+
+    def get_route(self, url):
+        url = url.lstrip('/')
+
+        # TODO: Should we pre-index this?
+        for route in self.routes:
+            if route.url.lstrip('/') == url:
+                return route
 
     @property
     def routes(self):
@@ -164,7 +172,6 @@ class Index(object):
             }
 
         return r
-
 
 
 

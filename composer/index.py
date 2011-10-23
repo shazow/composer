@@ -21,6 +21,8 @@ class Index(object):
         self.base_path = os.path.abspath(base_path)
         self.filters = {}
 
+        self._filters_kwargs_cache = {} # For exporting
+
         for filter_id, filter_cls in default_filters.iteritems():
             self.register_filter(filter_id, filter_cls)
 
@@ -43,6 +45,7 @@ class Index(object):
         """
         kwargs = kwargs or {}
         self.filters[id] = filter = filter_cls(self, **kwargs)
+        self._filters_kwargs_cache[id] = kwargs
         return filter
 
     def _compile_globs(self, globs_or_regexps):
@@ -112,6 +115,57 @@ class Index(object):
     @property
     def static(self):
         return self._generate_static()
+
+
+    @staticmethod
+    def from_dict(d, **kw):
+        index = Index(**kw)
+
+        def _generate_routes():
+            for route_kw in d.get('routes', []):
+                yield Route(**route_kw)
+
+        index._generate_routes = _generate_routes
+
+        def _generate_static():
+            for static_kw in d.get('static', []):
+                yield Static(**static_kw)
+
+        index._generate_static = _generate_static
+
+        return index
+
+    def to_dict(self):
+        # TODO: Make paths relative to base_path
+        r = {
+            'routes': [],
+            'static': [],
+            'filters': {},
+        }
+
+        for route in self.routes:
+            r['routes'].append({
+                'url': route.url,
+                'file': route.file,
+                'filters': route.filters,
+                'context': route.context,
+            })
+
+        for static in self.statics:
+            r['statics'].append({
+                'url': static.url,
+                'file': static.file,
+            })
+
+        for filter_id, filter_cls in self.filters.iteritems():
+            r['filters'][filter_id] = {
+                'class': '%s:%s' % (filter_cls.__module__, filter_cls.__name__),
+                'kwargs': self._filters_kwargs_cache.get(filter_id, {}),
+            }
+
+        return r
+
+
 
 
 class Route(object):

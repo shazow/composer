@@ -13,14 +13,30 @@ Install
     $ pip install https://github.com/shazow/composer/tarball/master
     $ pip install mako markdown2 # If you're using the built-in filters (optional)
 
+Auto-reloading server
+---------------------
 
-Generate an index file
--------------------
+Great for live preview and debugging. ::
 
-Write an indexer script by inheriting from ``composer.index.Index``. ::
+    $ composer serve examples/simple_mako/index.json
+    $ open http://localhost:8080/foo
+
+Static build
+------------
+
+::
+
+    $ composer build examples/simple_mako/index.json
+    $ open build/foo/index.html
+
+
+Write your own index file
+-------------------------
+
+We can write an indexer script which will generate our index file. ::
 
     #!/usr/bin/env python
-    # indexer.py - Generate index JSON for my blog.
+    # indexer.py - Generate index JSON for my website.
 
     from composer.index import Index, Route, Static
 
@@ -55,22 +71,6 @@ Soon: The plan is to make the intermediate index file optional. You'll be able
 to plug the Index class directly into Composer.
 
 
-Auto-reloading server
----------------------
-
-::
-
-    $ composer serve examples/simple_mako/index.json
-    $ open http://localhost:8080/foo
-
-Static build
-------------
-
-::
-
-    $ composer build examples/simple_mako/index.json
-    $ open build/foo/index.html
-
 Components
 ==========
 
@@ -91,7 +91,7 @@ what it does best.
 TODO
 ====
 
-#. Index generator
+#. Error handling and exceptions
 #. Tests
 #. Docs
 #. Scaffolds (with Makefile)

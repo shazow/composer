@@ -63,8 +63,8 @@ Now run the script to generate the intermediate index file. ::
 
 Some examples of indexer scripts can be found here:
 
-- [https://github.com/shazow/shazow.net/blob/master/indexer.py]()
-- [https://github.com/shazow/composer/blob/master/examples/simple_mako/indexer.py]()
+- https://github.com/shazow/shazow.net/blob/master/indexer.py
+- https://github.com/shazow/composer/blob/master/examples/simple_mako/indexer.py
 
 
 Soon: The plan is to make the intermediate index file optional. You'll be able

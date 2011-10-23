@@ -39,11 +39,8 @@ class Writer(object):
 class WSGIWriter(Writer):
 
     def __call__(self, environ, start_response):
-
         # Translate to remove the base_url
         path = environ.get('PATH_INFO', '')
-        path = os.path.relpath(path, self.index.base_url)
-
         content = super(WSGIWriter, self).__call__(path)
 
         if content is None:

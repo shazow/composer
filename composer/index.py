@@ -4,11 +4,15 @@
 # This module is part of Composer and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
+import logging
 import os
 import re
 import fnmatch
 
 from .filters import default_filters
+
+
+log = logging.getLogger(__name__)
 
 ##
 
@@ -114,15 +118,15 @@ class Index(object):
 
     def _prune_paths(self, paths, exclude, include_only):
         for path in paths:
-            if not any(r.match(path) for r in include_only):
+            if include_only and not any(r.match(path) for r in include_only):
                 continue
-            if any(r.match(path) for r in exclude):
+            if exclude and any(r.match(path) for r in exclude):
                 continue
             yield path
 
-    def walk(self, exclude=None, include_only=None, start='.'):
+    def walk(self, start='.', exclude=None, include_only=None):
         """
-        Walk and yield absolute paths from the Index's ``base_path``.
+        Walk and yield relative paths from the Index's ``base_path``.
 
         :param exclude:
             List of string globs or regular expression objects to omit.
@@ -140,21 +144,20 @@ class Index(object):
 
         start_path = self.absolute_path(start)
 
-        for dirpath, dirnames, filenames in os.walk(start_path, topdown=True, followlinks=True):
-            # FIXME: Should these paths be converted to absolute or relative before pruning?
-            dirnames[:] = self._prune_paths(dirnames, exclude, include_only)
+        for dirpath, dirnames, filenames in os.walk(start_path, followlinks=True):
+            filenames = (self.relative_path(os.path.join(dirpath, f)) for f in filenames)
             filenames = self._prune_paths(filenames, exclude, include_only)
             for file in filenames:
-                yield filenames
+                yield file
 
     def absolute_url(self, url):
         return os.path.join(self.base_url, url)
 
-    def absolute_path(self, path):
+    def absolute_path(self, path, start='.'):
         """
         Get the absolute path in respect to the Index base path.
         """
-        return os.path.join(self.base_path, path)
+        return os.path.join(self.base_path, start, path)
 
     def relative_path(self, path, start='.'):
         """

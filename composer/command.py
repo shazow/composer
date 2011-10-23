@@ -63,7 +63,7 @@ def main():
                             level=logging.INFO)
 
     if args.verbose > 1:
-        logging.setLevel(logging.DEBUG)
+        log.setLevel(logging.DEBUG)
 
     data = json.load(open(args.index_file))
 

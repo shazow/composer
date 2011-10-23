@@ -24,7 +24,7 @@
     ], 
     "static": [
         {
-            "url": "static", 
+            "url": "/static", 
             "file": "static"
         }
     ], 

@@ -8,7 +8,7 @@ import os
 import re
 import fnmatch
 
-from .filters import default_filters, Filter
+from .filters import default_filters
 
 ##
 

@@ -39,7 +39,12 @@ class Writer(object):
 class WSGIWriter(Writer):
 
     def __call__(self, environ, start_response):
-        content = super(WSGIWriter, self).__call__(environ.get('PATH_INFO', ''))
+
+        # Translate to remove the base_url
+        path = environ.get('PATH_INFO', '')
+        path = os.path.relpath(path, self.index.base_url)
+
+        content = super(WSGIWriter, self).__call__(path)
 
         if content is None:
             start_response('404 NOT FOUND', [('Content-Type', 'text/plain')])

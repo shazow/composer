@@ -65,6 +65,6 @@ class MakoContainer(Mako):
 
 
 default_filters = {
-    'mako': {'class': Mako},
-    'markdown': {'class': Markdown},
+    'mako': Mako,
+    'markdown': Markdown,
 }

@@ -5,21 +5,68 @@ Used to generate `shazow.net <http://shazow.net>`_.
 Usage
 =====
 
-Install: ::
+Install
+-------
+
+::
 
     $ pip install https://github.com/shazow/composer/tarball/master
     $ pip install mako markdown2 # If you're using the built-in filters (optional)
 
-Generate index file: ::
 
-    TODO
+Generate an index file
+-------------------
 
-Auto-reloading server: ::
+Write an indexer script by inheriting from ``composer.index.Index``. ::
+
+    #!/usr/bin/env python
+    # indexer.py - Generate index JSON for my blog.
+
+    from composer.index import Index, Route, Static
+
+    class SimpleIndex(Index):
+
+        def _generate_static(self):
+            yield Static('static', 'my_static_files')
+
+        def _generate_routes(self):
+            yield Route('foo', 'foo.mako', filters=['mako'])
+            yield Route('post/1', 'posts/1.md', filters=['markdown'])
+
+
+    if __name__ == '__main__':
+        import json
+        index = SimpleIndex()
+        print json.dumps(index.to_dict(), indent=4)
+
+
+Now run the script to generate the intermediate index file. ::
+
+    $ python indexer.py > index.json
+
+
+Some examples of indexer scripts can be found here:
+
+- [https://github.com/shazow/shazow.net/blob/master/indexer.py]()
+- [https://github.com/shazow/composer/blob/master/examples/simple_mako/indexer.py]()
+
+
+Soon: The plan is to make the intermediate index file optional. You'll be able
+to plug the Index class directly into Composer.
+
+
+Auto-reloading server
+---------------------
+
+::
 
     $ composer serve examples/simple_mako/index.json
     $ open http://localhost:8080/foo
 
-Static build: ::
+Static build
+------------
+
+::
 
     $ composer build examples/simple_mako/index.json
     $ open build/foo/index.html

@@ -1,37 +1,50 @@
 {
-    "filters": {
-        "post": {
-            "class": "composer.filters:MakoContainer",
-            "kwargs": {"directories": ["."], "template": "post.mako"}
-        }
-    },
-    "static": [
-        {
-            "url": "/static",
-            "file": "static"
-        }
-    ],
     "routes": [
         {
+            "url": "foo", 
             "context": {
                 "title": "Hello"
-            },
-            "file": "foo.mako",
+            }, 
             "filters": [
                 "mako"
-            ],
-            "url": "foo"
-        },
+            ], 
+            "file": "foo.mako"
+        }, 
         {
+            "url": "post/1", 
             "context": {
-                "title": "Goodbye!"
-            },
-            "file": "posts/1.md",
+                "title": "Hello"
+            }, 
             "filters": [
-                "markdown",
+                "markdown", 
                 "post"
-            ],
-            "url": "post/1"
+            ], 
+            "file": "posts/1.md"
         }
-    ]
+    ], 
+    "static": [
+        {
+            "url": "/static", 
+            "file": "static"
+        }
+    ], 
+    "filters": {
+        "mako": {
+            "class": "composer.filters:Mako", 
+            "kwargs": {}
+        }, 
+        "post": {
+            "class": "composer.filters:MakoContainer", 
+            "kwargs": {
+                "directories": [
+                    "."
+                ], 
+                "template": "post.mako"
+            }
+        }, 
+        "markdown": {
+            "class": "composer.filters:Markdown", 
+            "kwargs": {}
+        }
+    }
 }

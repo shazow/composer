@@ -8,8 +8,9 @@ import os
 import re
 import fnmatch
 
-from .filters import default_filters
+from .filters import default_filters, Filter
 
+##
 
 # TODO: Use this to add route prev/current/next tracking?
 def iter_consume(i, num=0):
@@ -30,8 +31,40 @@ def import_object(path):
     o = __import__(module, fromlist=[obj])
     return getattr(o, obj)
 
+##
+
+class Route(object):
+    """
+    :param url:
+        Url of the route.
+
+    :param file:
+        Path of the while used to populate ``content`` if ``content` is None.
+
+    :param filters:
+        List of filter ids.
+
+    :param context:
+        Object passed into each filter.
+
+    :param content:
+        Fixed content to start the route with. If set, ignores the ``file``
+        param.
+    """
+    def __init__(self, url=None, file=None, filters=None, context=None, content=None):
+        self.url = url
+        self.file = file
+        self.filters = filters or []
+        self.context = context
+        self.content = None
 
 
+class Static(object):
+    def __init__(self, url, file):
+        self.url = url
+        self.file = file
+
+##
 
 class Index(object):
     """
@@ -39,12 +72,15 @@ class Index(object):
         Base path that the rest of the file paths should be resolved in
         relation to.
     """
-    def __init__(self, base_path='', default_filters=default_filters):
+    def __init__(self, base_path='', base_url='/'):
         self.base_path = os.path.abspath(base_path)
+        self.base_url = '/'
+
         self.filters = {}
-
         self._filters_kwargs_cache = {} # For exporting
+        self._register_filters()
 
+    def _register_filters(self):
         for filter_id, filter_cls in default_filters.iteritems():
             self.register_filter(filter_id, filter_cls)
 
@@ -84,7 +120,7 @@ class Index(object):
                 continue
             yield path
 
-    def walk(self, exclude=None, include_only=None):
+    def walk(self, exclude=None, include_only=None, start='.'):
         """
         Walk and yield absolute paths from the Index's ``base_path``.
 
@@ -94,17 +130,25 @@ class Index(object):
         :param include_only:
             List of string globs or regular expressions objects which one must
             match in order to be included.
+
+        :param start:
+            Path to start from relative to ``base_path``
         """
         # Compile globs into regexps
         exclude = self._compile_globs(exclude)
         include_only = self._compile_globs(include_only)
 
-        for dirpath, dirnames, filenames in os.walk(self.base_path, topdown=True, followlinks=True):
+        start_path = self.absolute_path(start)
+
+        for dirpath, dirnames, filenames in os.walk(start_path, topdown=True, followlinks=True):
             # FIXME: Should these paths be converted to absolute or relative before pruning?
             dirnames[:] = self._prune_paths(dirnames, exclude, include_only)
             filenames = self._prune_paths(filenames, exclude, include_only)
             for file in filenames:
                 yield filenames
+
+    def absolute_url(self, url):
+        return os.path.join(self.base_url, url)
 
     def absolute_path(self, path):
         """
@@ -124,11 +168,25 @@ class Index(object):
         """
         pass
 
+    def _process_route(self, route):
+        """
+        Mutate the route after it has been generated. If no route is returned,
+        then it is skipped.
+        """
+        return route
+
     def _generate_static(self):
         """
         Yield Static objects."
         """
         pass
+
+    def _process_static(self, static):
+        """
+        Mutate the static entry after it has been generated. If no entry is
+        returned, then it is skipped.
+        """
+        return static
 
     def get_route(self, url):
         url = url.lstrip('/')
@@ -140,12 +198,17 @@ class Index(object):
 
     @property
     def routes(self):
-        return self._generate_routes()
+        for route in self._generate_routes():
+            route = self._process_route(route)
+            if route:
+                yield route
 
     @property
     def static(self):
-        return self._generate_static()
-
+        for static in self._generate_static():
+            static = self._process_static(static)
+            if static:
+                yield static
 
     @staticmethod
     def from_dict(d, **kw):
@@ -189,89 +252,16 @@ class Index(object):
                 'context': route.context,
             })
 
-        for static in self.statics:
-            r['statics'].append({
+        for static in self.static:
+            r['static'].append({
                 'url': static.url,
                 'file': static.file,
             })
 
-        for filter_id, filter_cls in self.filters.iteritems():
+        for filter_id, filter_obj in self.filters.iteritems():
             r['filters'][filter_id] = {
-                'class': '%s:%s' % (filter_cls.__module__, filter_cls.__name__),
+                'class': '%s:%s' % (filter_obj.__module__, filter_obj.__class__.__name__),
                 'kwargs': self._filters_kwargs_cache.get(filter_id, {}),
             }
 
         return r
-
-
-
-class Route(object):
-    """
-    :param url:
-        Url of the route.
-
-    :param file:
-        Path of the while used to populate ``content`` if ``content` is None.
-
-    :param filters:
-        List of filter ids.
-
-    :param context:
-        Object passed into each filter.
-
-    :param content:
-        Fixed content to start the route with. If set, ignores the ``file``
-        param.
-    """
-    def __init__(self, url=None, file=None, filters=None, context=None, content=None):
-        self.url = url
-        self.file = file
-        self.filters = filters or []
-        self.context = context
-        self.content = None
-
-
-class Static(object):
-    def __init__(self, url, file):
-        self.url = url
-        self.file = file
-
-
-class Indexer(object):
-    """
-    Abstract Interface for building an Indexer object.
-
-    An Index is created in these steps:
-
-    1. Walk the filesystem (or something similar) and generate routes
-    2. Process and mutate the route.
-       a. Extract metadata for route
-       b. Assign filters for route
-       c. Assign url for route
-    """
-    def __init__(self, **index_kw):
-        self.index = Index(**index_kw)
-
-    def _before(self):
-        "Setup filters and static routes. (Called first)"
-        pass
-
-    def _after(self):
-        "Clean up. (Called last)"
-        pass
-
-    def generate_routes(self):
-        "Yield routes."
-        pass
-
-    def process_route(self, route):
-        "Mutate the route object as necessary."
-        pass
-
-    def __call__(self):
-        self._before()
-
-        for route in self.generate_routes():
-            yield self.process(route)
-
-        self._after()

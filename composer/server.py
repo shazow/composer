@@ -13,15 +13,13 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def serve(environ, host='localhost', port=8080, debug=True, **kw):
+def serve(index, host='localhost', port=8080, debug=True, **kw):
     from werkzeug.wsgi import SharedDataMiddleware
     from werkzeug.serving import run_simple
 
-    path = lambda p: os.path.join(environ.get('base_path', ''), p)
+    app = WSGIWriter(index)
 
-    app = WSGIWriter(environ)
-
-    static_routes = dict((r['url'], path(r['file'])) for r in environ.get('static', []))
+    static_routes = dict((index.absolute_url(s.url), index.absolute_path(s.file)) for s in index.static)
 
     log.info("Adding static routes: %r", static_routes)
     app = SharedDataMiddleware(app, static_routes)

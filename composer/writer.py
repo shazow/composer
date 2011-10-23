@@ -12,12 +12,6 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def import_object(path):
-    module, obj = path.split(':', 1)
-    o = __import__(module, fromlist=[obj])
-    return getattr(o, obj)
-
-
 class Writer(object):
     """
     Writer only cares about the ``filters`` and ``base_path`` in the
@@ -32,7 +26,7 @@ class Writer(object):
         content = open(file_path).read()
 
         for filter_id in route.filters:
-            content = self.filters[filter_id](content, route=route)
+            content = self.index.filters[filter_id](content, route=route)
 
         return content
 

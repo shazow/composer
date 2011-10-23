@@ -1,5 +1,5 @@
 <html>
-    <head><title>${title}</title></head>
+    <head><title>${route.context['title']}</title></head>
     <body>
         ${body}
     </body>

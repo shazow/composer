@@ -67,7 +67,9 @@ def main():
 
     data = json.load(open(args.index_file))
 
-    index = Index.from_dict(data)
+    base_path = os.path.dirname(args.index_file)
+
+    index = Index.from_dict(data, base_path=base_path)
 
     if args.command == 'serve':
         serve_command(index, extra_files=[args.index_file])

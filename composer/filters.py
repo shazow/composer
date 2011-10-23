@@ -60,9 +60,7 @@ class MakoContainer(Mako):
     def __init__(self, index, template, **lookup_kw):
         super(MakoContainer, self).__init__(index, **lookup_kw)
 
-        path = lambda p: os.path.join(self.index.get('base_path', ''), p)
-
-        self.template = self.lookup.get_template(path(template))
+        self.template = self.lookup.get_template(template)
 
     def __call__(self, content, route=None):
         return str(self.template.render(index=self.index, body=content, route=route))

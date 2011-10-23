@@ -1,7 +1,4 @@
 {
-    "default_context": {
-        "title": "Hello"
-    },
     "filters": {
         "post": {
             "class": "composer.filters:MakoContainer",
@@ -16,6 +13,9 @@
     ],
     "routes": [
         {
+            "context": {
+                "title": "Hello"
+            },
             "file": "foo.mako",
             "filters": [
                 "mako"

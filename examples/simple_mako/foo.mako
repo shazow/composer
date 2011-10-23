@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>${title}</title>
+        <title>${route.context['title']}</title>
         <link href="/static/css/style.css" type="text/css" rel="stylesheet" />
     </head>
     <body>

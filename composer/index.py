@@ -25,6 +25,13 @@ def iter_consume(i, num=0):
         yield o
 
 
+def import_object(path):
+    module, obj = path.split(':', 1)
+    o = __import__(module, fromlist=[obj])
+    return getattr(o, obj)
+
+
+
 
 class Index(object):
     """
@@ -146,15 +153,23 @@ class Index(object):
 
         def _generate_routes():
             for route_kw in d.get('routes', []):
-                yield Route(**route_kw)
+                r = Route(**route_kw)
+                r.file = index.absolute_path(r.file)
+                yield r
 
         index._generate_routes = _generate_routes
 
         def _generate_static():
             for static_kw in d.get('static', []):
-                yield Static(**static_kw)
+                s = Static(**static_kw)
+                s.file = index.absolute_path(s.file)
+                yield s
 
         index._generate_static = _generate_static
+
+        for filter_id, filter_conf in d.get('filters', {}).iteritems():
+            filter_cls = import_object(filter_conf['class'])
+            index.register_filter(filter_id, filter_cls, kwargs=filter_conf.get('kwargs'))
 
         return index
 

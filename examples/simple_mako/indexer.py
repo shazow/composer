@@ -14,26 +14,19 @@ class SimpleIndex(Index):
         yield Static('/static', 'static')
 
     def _generate_routes(self):
-        yield Route('foo', 'foo.mako')
-        yield Route('post/1', 'posts/1.md')
+        context = {'title': 'Hello'}
 
-    def _process_route(self, route):
-        route.context = {'title': 'Hello'}
+        for path in self.walk(include_only=['*.mako'], exclude=['post.mako']):
+            url = self.absolute_url(path.split('.')[0])
+            yield Route(url, path, filters=['mako'], context=context)
 
-        if route.file.endswith('md'):
-            route.filters = ['markdown', 'post']
-        elif route.file.endswith('mako'):
-            route.filters = ['mako']
-
-        if route.file.startswith('posts/'):
-            route.url = 'post/%s' % route.file.split('/', 1)[1].split('.')[0]
-        else:
-            route.url = route.file.split('.')[0]
-
-        return route
-
+        for path in self.walk('posts', include_only=['*.md']):
+            url = self.absolute_url('post/%s' % path.split('/', 1)[1].split('.')[0])
+            yield Route(url, path, filters=['markdown', 'mako'], context=context)
 
 if __name__ == '__main__':
     import json
-    index = SimpleIndex()
+    import os
+
+    index = SimpleIndex(os.path.dirname(__file__))
     print json.dumps(index.to_dict(), indent=4)

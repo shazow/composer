@@ -82,11 +82,15 @@ class Index(object):
 
         self.filters = {}
         self._filters_kwargs_cache = {} # For exporting
-        self._register_filters()
+        self._register_default_filters()
 
-    def _register_filters(self):
+    def _register_default_filters(self):
         for filter_id, filter_cls in default_filters.iteritems():
             self.register_filter(filter_id, filter_cls)
+
+    def _register_filters(self):
+        "Stub."
+        pass
 
     def register_filter(self, id, filter_cls, kwargs=None):
         """
@@ -171,25 +175,11 @@ class Index(object):
         """
         pass
 
-    def _process_route(self, route):
-        """
-        Mutate the route after it has been generated. If no route is returned,
-        then it is skipped.
-        """
-        return route
-
     def _generate_static(self):
         """
         Yield Static objects."
         """
         pass
-
-    def _process_static(self, static):
-        """
-        Mutate the static entry after it has been generated. If no entry is
-        returned, then it is skipped.
-        """
-        return static
 
     def get_route(self, url):
         url = url.lstrip('/')
@@ -201,17 +191,11 @@ class Index(object):
 
     @property
     def routes(self):
-        for route in self._generate_routes():
-            route = self._process_route(route)
-            if route:
-                yield route
+        return self._generate_routes()
 
     @property
     def static(self):
-        for static in self._generate_static():
-            static = self._process_static(static)
-            if static:
-                yield static
+        return self._generate_static()
 
     @staticmethod
     def from_dict(d, **kw):

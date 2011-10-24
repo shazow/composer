@@ -83,6 +83,7 @@ class Index(object):
         self.filters = {}
         self._filters_kwargs_cache = {} # For exporting
         self._register_default_filters()
+        self._register_filters()
 
     def _register_default_filters(self):
         for filter_id, filter_cls in default_filters.iteritems():

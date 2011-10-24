@@ -7,7 +7,6 @@ from composer.filters import MakoContainer
 class SimpleIndex(Index):
 
     def _register_filters(self):
-        super(SimpleIndex, self)._register_filters()
         self.register_filter('post', MakoContainer, {'directories': ['.'], 'template': 'post.mako'})
 
     def _generate_static(self):

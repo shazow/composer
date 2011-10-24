@@ -1,117 +1,81 @@
 #!/usr/bin/env python
-import os
-import re
-import sys
-import json
-import argparse
 
+import re
 import yaml
 
-class Blogofile2Manifest(object):
-    known_extensions = {
-        "mako": {
-            "filters": ["mako"],
-            "strip": True,
-        },
-        "_default": {
-            "filters": [],
-            "strip": False,
-        },
-    }
-
-    def __init__(self, root):
-        self.root = root
-
-    def build_routes(self):
-        self.routes = []
-        self.default_context = {}
-        self.manifest = {
-            "routes": self.routes,
-            "default_context": self.default_context,
-        }
-
-        self.posts = {}
-
-        file = None
-        try:
-            for file in self.walk_files():
-                self.process_file(file)
-        except Exception, e:
-            raise Exception("error while processing %r: %r" %(file, e)), None, sys.exc_info()[2]
-
-    def walk_files(self):
-        for dirpath, dirnames, filenames in os.walk(self.root, topdown=True,
-                                                    followlinks=True):
-            dirnames[:] = [ dir for dir in dirnames
-                            if dir == "_posts" or dir[0] not in "._" ]
-            for file in filenames:
-                if file[0] not in "._":
-                    yield os.path.join(dirpath, file)
-
-    def file_ext(self, file):
-        if "." not in os.path.basename(file):
-            return file, ""
-        return file.rsplit(".", 1)
-
-    def settings_for_ext(self, ext):
-        settings = self.known_extensions.get(ext, None)
-        return settings or self.known_extensions["_default"]
-
-    def process_file(self, file):
-        if "_posts/" in file:
-            self.process_post(file)
-            return
-
-        base, ext = self.file_ext(file)
-        ext_settings = self.settings_for_ext(ext)
-
-        url_path = file
-        if ext_settings["strip"]:
-            url_path = base
-
-        url = url_path[len(self.root):].lstrip("/")
-        self.add_route(url, file, ext_settings["filters"])
-
-    def process_post(self, file):
-        post_data = yaml.load_all(open(file)).next()
-        if not isinstance(post_data, dict):
-            raise ValueError("post doesn't have a YAML header (found: %r)"
-                             %(post_data))
-        self.posts[file] = post_data
-        _, ext = self.file_ext(file)
-        url = self.post_url(post_data)
-        filters =  ["strip_blogofile_header"]
-        if ext != "html":
-            filters.append(ext)
-        self.add_route(url, file, filters, post_data)
-
-    def post_url(self, post_data):
-        title = post_data["title"].lower()
-        return "posts/" + re.sub("[^a-zA-Z0-9_]", "-", title)
-
-    def add_route(self, url, file, filters, context=None):
-        self.routes.append({
-            "url": url,
-            "file": file,
-            "filters": filters,
-            "context": context or {},
-        })
+from composer.index import Index, Route, Static
+from composer.filters import Filter, MakoContainer, Mako, Markdown
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("root", help="""
-        Root of blogofile site (contains _posts, _config, etc).
-    """)
-    return parser.parse_args()
+## Filters:
+
+class StripHeader(Filter):
+    def __call__(self, content, route=None):
+        # TODO: Strip the YAML header from the content and return it.
+        return content
+
+class RestructuredText(Filter):
+    # TODO: Implement this.
+    pass
+
+class BlogofileMako(MakoContainer):
+    def __call__(self, content, route=None):
+        # TODO: Inject the context that Blogofile templates expect.
+        return str(self.template.render(index=self.index, body=content, route=route))
 
 
-def main():
-    args = parse_args()
-    generator = Blogofile2Manifest(args.root)
-    generator.build_routes()
-    print json.dumps(generator.manifest)
-    return 0
+## Helpers:
 
-if __name__ == "__main__":
-    sys.exit(main())
+def get_yaml_header(file):
+    return yaml.load_all(open(file)).next()
+
+def strip_ends(s, prefix='', suffix=''):
+    return s[len(prefix):-len(suffix)]
+
+
+## Index:
+
+class BlogofileIndex(Index):
+    def _register_filters(self):
+        super(BlogofileIndex, self)._register_filters()
+
+        self.register_filter('mako', Mako, {'directories': ['_templates']})
+        self.register_filter('markdown', Markdown)
+        self.register_filter('rst', RestructuredText)
+
+        self.register_filter('post', BlogofileMako, {'directories': ['_templates'], 'template': 'post.mako'})
+        self.register_filter('strip', StripHeader)
+
+    def _generate_static(self):
+        for file in self.walk(exclude=[".*", "_*"]):
+            yield Static(self.absolute_url(file), file)
+
+    def _generate_routes(self):
+        # Fixed pages
+        for file in self.walk(include_only=['*.html.mako']):
+            url = strip_ends(file, suffix='.html.mako')
+            url = self.absolute_url(url.replace('index', ''))
+
+            filters = ['mako']
+            context = None # TODO: ...
+
+            yield Route(url, file=file, filters=filters, context=context)
+
+        # Posts
+        for file in self.walk('_posts'):
+            header = get_yaml_header(file)
+            url = "posts/" + re.sub("[^a-zA-Z0-9_]", "-", header['title'])
+
+            filters = ['strip']
+            if file.endswith('.rst'):
+                filters.append('rst')
+
+            context = None # TODO: ...
+
+            yield Route(url, file, filters=filters, context=context)
+
+
+if __name__ == '__main__':
+    import json
+    index = BlogofileIndex()
+    print json.dumps(index.to_dict(), indent=4)

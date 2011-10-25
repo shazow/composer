@@ -2,8 +2,9 @@
 #
 # Dependency:     Filters:
 
-  markdown2     # composer.filters.Markdown
   Mako          # composer.filters.Mako, composer.filters.MakoContainer
+  markdown2     # composer.filters.Markdown
+  docutils      # composer.filters.RestructuredText
 
 # You'll need to install the dependencies manually if you plan on using these
 # filters, else an ImportError exception will be raised during instantiation.

@@ -17,8 +17,13 @@ try:
 except ImportError:
     mako = False
 
+try:
+    import docutils.core
+except ImportError:
+    docutils = False
 
-__all__ = ['Filter', 'Markdown', 'Mako', 'MakoContainer']
+
+__all__ = ['Filter', 'Markdown', 'Mako', 'MakoContainer', 'RestructuredText']
 
 
 class Filter(object):
@@ -42,10 +47,10 @@ class Markdown(Filter):
             raise ImportError("Markdown filter requires the 'markdown2' package to be installed.")
 
         super(Markdown, self).__init__(index)
-        self.markdowner = markdown2.Markdown(**markdown_kw).convert
+        self.converter = markdown2.Markdown(**markdown_kw).convert
 
     def __call__(self, content, route=None):
-        return self.markdowner(content)
+        return self.converter(content)
 
 
 class Mako(Filter):
@@ -90,7 +95,19 @@ class MakoContainer(Mako):
         return str(self.template.render(index=self.index, body=content, route=route))
 
 
+class RestructuredText(Filter):
+    def __init__(self, index, **rst_kw):
+        if not docutils:
+            raise ImportError("RestructuredText filter requires the 'docutils' package to be installed.")
+
+        self.rst_kw = rst_kw
+
+    def __call__(self, content, route=None):
+        return docutils.core.publish_string(content, **self.rst_kw)
+
+
 default_filters = {
     'mako': Mako,
     'markdown': Markdown,
+    'rst': RestructuredText,
 }

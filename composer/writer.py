@@ -64,13 +64,19 @@ class FileWriter(Writer):
         if not os.path.exists(self.build_path):
             os.makedirs(self.build_path)
 
-    def materialize_url(self, url, content=None, index_file='index.html'):
+    def materialize_url(self, url, content=None, default_index_file='index.html'):
         url = url.lstrip('/')
+
+        log.info("Materializing: /%s", url)
+
+        index_file = default_index_file
+        url_index = os.path.basename(url)
+        if '.' in url_index:
+            index_file = url_index
+            url = os.path.basedir(url)
 
         url_path = os.path.join(self.build_path, url)
         file_path = index_file and os.path.join(url_path, index_file)
-
-        log.info("Materializing: /%s", url)
 
         if not os.path.exists(url_path):
             os.makedirs(url_path)

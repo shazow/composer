@@ -87,7 +87,11 @@ class Index(object):
 
     def _register_default_filters(self):
         for filter_id, filter_cls in default_filters.iteritems():
-            self.register_filter(filter_id, filter_cls)
+            try:
+                self.register_filter(filter_id, filter_cls)
+                log.debug("Registered default filter: %s", filter_id)
+            except ImportError:
+                log.debug("Skipping default filter due to missing dependency package: %s", filter_id)
 
     def _register_filters(self):
         "Stub."
@@ -192,11 +196,11 @@ class Index(object):
 
     @property
     def routes(self):
-        return self._generate_routes()
+        return self._generate_routes() or ()
 
     @property
     def static(self):
-        return self._generate_static()
+        return self._generate_static() or ()
 
     @staticmethod
     def from_dict(d, **kw):

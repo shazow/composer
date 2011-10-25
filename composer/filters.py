@@ -132,9 +132,7 @@ class Jinja2(Filter):
 
         # TODO: Add support for more loaders?
 
-        self.jinja_env = jinja2.Environment(
-            loaders=jinja2.ChoiceLoaders(loaders)
-        )
+        self.jinja_env = jinja2.Environment(loader=jinja2.ChoiceLoader(loaders))
 
     def __call__(self, content, route=None):
         t = self.jinja_env.from_string(content)

@@ -3,13 +3,11 @@
 #
 # This module is part of Composer and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
-import os
-
+import logging
 
 from .writer import WSGIWriter
 
 
-import logging
 log = logging.getLogger(__name__)
 
 

@@ -3,6 +3,7 @@
 # Dependency:     Filters:
 
   Mako          # composer.filters.Mako, composer.filters.MakoContainer
+  Jinja2        # composer.filters.Jinja2
   markdown2     # composer.filters.Markdown
   docutils      # composer.filters.RestructuredText
 

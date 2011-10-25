@@ -47,3 +47,17 @@ setup(name='Composer',
       composer = composer.command:main
       """
       )
+
+
+print """
+---
+
+%s
+
+---
+
+You can install all the optional dependencies with: ::
+
+    pip install -r optional.txt
+
+""" % open('optional.txt').read().strip()

@@ -6,6 +6,21 @@
 
 import os
 
+try:
+    import markdown2
+except ImportError:
+    markdown2 = False
+
+try:
+    import mako.lookup
+    import mako.template
+except ImportError:
+    mako = False
+
+
+__all__ = ['Filter', 'Markdown', 'Mako', 'MakoContainer']
+
+
 class Filter(object):
     def __init__(self, index):
         self.index = index
@@ -23,9 +38,10 @@ class Filter(object):
 
 class Markdown(Filter):
     def __init__(self, index, **markdown_kw):
-        super(Markdown, self).__init__(index)
+        if not markdown2:
+            raise ImportError("Markdown filter requires the 'markdown2' package to be installed.")
 
-        import markdown2
+        super(Markdown, self).__init__(index)
         self.markdowner = markdown2.Markdown(**markdown_kw).convert
 
     def __call__(self, content, route=None):
@@ -34,6 +50,9 @@ class Markdown(Filter):
 
 class Mako(Filter):
     def __init__(self, index, **template_kw):
+        if not mako:
+            raise ImportError("Mako filter requires the 'Mako' package to be installed.")
+
         super(Mako, self).__init__(index)
 
         from mako.lookup import TemplateLookup
@@ -58,6 +77,9 @@ class MakoContainer(Mako):
     pipes the ``content`` into the ``body`` context variable.
     """
     def __init__(self, index, template, **lookup_kw):
+        if not mako:
+            raise ImportError("MakoContainer filter requires the 'Mako' package to be installed.")
+
         super(MakoContainer, self).__init__(index, **lookup_kw)
 
         template = os.path.relpath(self.index.absolute_path(template), '.')

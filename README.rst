@@ -36,7 +36,7 @@ Write your own index file
 We can write an indexer script which will generate our index file. ::
 
     #!/usr/bin/env python
-    # indexer.py - Generate index JSON for my website.
+    # indexer.py - Generate a Composer Index for my website.
 
     from composer.index import Index, Route, Static
 
@@ -56,9 +56,16 @@ We can write an indexer script which will generate our index file. ::
         print json.dumps(index.to_dict(), indent=4)
 
 
-Now run the script to generate the intermediate index file. ::
+Now we run the script to generate the intermediate index file and run it. ::
 
     $ python indexer.py > index.json
+    $ composer build index.json
+
+
+Or we can call the Index generator directly from Composer. This is great for
+really large and complex websites. ::
+
+    $ composer build indexer:SimpleIndex
 
 
 Some examples of indexer scripts can be found here:
@@ -67,21 +74,18 @@ Some examples of indexer scripts can be found here:
 - https://github.com/shazow/composer/blob/master/examples/simple_mako/indexer.py
 
 
-Soon: The plan is to make the intermediate index file optional. You'll be able
-to plug the Index class directly into Composer.
-
-
 Components
 ==========
 
 Composer builds static websites in two steps: First we index, then we compose.
 
-During indexing, we generate a ``index.json`` file which describes all the
-route URLs and how to render them. Second, we feed the index file into composer
-to generate static content.
+During indexing, we can output a ``index.json`` file which describes all the
+route URLs and how to render them. We feed the index into composer to generate
+static content--this can be done with the JSON file or the Index generator can
+be plugged in directly.
 
 This makes the composing step really simple because all the complex logic is
-already compiled and flattened in the index file.
+separately assembled and can be flattened into a JSON file.
 
 Every complex setup seems to require a unique indexing step, so this allows you
 to customize just the piece that is applicable to you while letting Composer do
@@ -91,9 +95,16 @@ what it does best.
 TODO
 ====
 
-#. Error handling and exceptions
+#. More filters
+#. More error handling and exceptions
 #. Tests
-#. Docs
+#. More documentation
 #. Scaffolds (with Makefile)
 #. Everything else
 #. Ponies
+
+
+License
+=======
+
+See LICENSE.txt (The MIT License)

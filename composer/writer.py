@@ -61,13 +61,10 @@ class FileWriter(Writer):
 
         self.build_path = build_path
 
-        if not os.path.exists(self.build_path):
-            os.makedirs(self.build_path)
+        self._prepare_dir(build_path)
 
-    def materialize_url(self, url, content=None, default_index_file='index.html'):
+    def _get_materialize_path(self, url, default_index_file='index.html'):
         url = url.lstrip('/')
-
-        log.info("Materializing: /%s", url)
 
         index_file = default_index_file
         url_index = os.path.basename(url)
@@ -76,18 +73,32 @@ class FileWriter(Writer):
             url = os.path.basedir(url)
 
         url_path = os.path.join(self.build_path, url)
-        file_path = index_file and os.path.join(url_path, index_file)
+        return url_path, index_file
 
-        if not os.path.exists(url_path):
-            os.makedirs(url_path)
+    def _prepare_dir(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
 
-        if not file_path or not content:
-            return url_path
-
-        fp = open(file_path, 'w')
+    def _write_file(self, path, content):
+        fp = open(path, 'w')
         fp.write(content)
         fp.close()
 
+    def materialize_url(self, url, content=None, default_index_file='index.html'):
+        url = url.lstrip('/')
+
+        log.info("Materializing: /%s", url)
+
+        url_path, index_file = self._get_materialize_path(url, default_index_file)
+
+        self._prepare_dir(url_path)
+
+        file_path = index_file and os.path.join(url_path, index_file)
+
+        if not file_path or content is None:
+            return url_path
+
+        self._write_file(file_path, content)
         return file_path
 
     def __call__(self, path):

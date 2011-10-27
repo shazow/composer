@@ -32,8 +32,11 @@ class TestWriter(unittest.TestCase):
         self.assertEqual(w._made_dirs, ['build'])
 
         test_values = [
-            ('/', ['build/'], ['build/index.html']),
+            ('/', ['build'], ['build/index.html']),
             ('/foo', ['build/foo'], ['build/foo/index.html']),
+            ('/bar.html', ['build'], ['build/bar.html']),
+            ('/bar.html/', ['build/bar.html/'], ['build/bar.html/index.html']),
+            ('/bar.someunknownext', ['build'], ['build/bar.someunknownext']),
         ]
 
         for url, made_dirs, written_files in test_values:
@@ -41,7 +44,6 @@ class TestWriter(unittest.TestCase):
             w.materialize_url(url, '')
             self.assertEqual(w._made_dirs, made_dirs)
             self.assertEqual(w._written_files, written_files)
-
 
 
 if __name__ == '__main__':

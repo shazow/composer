@@ -7,6 +7,7 @@
 
 import os
 import logging
+import mimetypes
 
 
 log = logging.getLogger(__name__)
@@ -20,6 +21,9 @@ class Writer(object):
     """
     def __init__(self, index):
         self.index = index
+
+    def _guess_content_type(self, path):
+        return mimetypes.guess_type(path)[0]
 
     def render_route(self, route):
         file_path = route.file
@@ -47,7 +51,8 @@ class WSGIWriter(Writer):
             start_response('404 NOT FOUND', [('Content-Type', 'text/plain')])
             return ['Not Found']
 
-        start_response('200 OK', [('Content-Type', 'text/html')])
+        content_type = self._guess_content_type(path) or 'text/html'
+        start_response('200 OK', [('Content-Type', content_type)])
         return [content]
 
 
@@ -70,10 +75,21 @@ class FileWriter(Writer):
         url_index = os.path.basename(url)
         if '.' in url_index:
             index_file = url_index
-            url = os.path.basedir(url)
+            url = os.path.dirname(url)
+
+        if not url:
+            return self.build_path, index_file
 
         url_path = os.path.join(self.build_path, url)
         return url_path, index_file
+
+    def _is_unknown_content_type(self, url):
+        url = os.path.basename(url)
+
+        if '.' not in url:
+            return False # Assume html
+
+        return self._guess_content_type(url) == None
 
     def _prepare_dir(self, path):
         if not os.path.exists(path):
@@ -86,6 +102,10 @@ class FileWriter(Writer):
 
     def materialize_url(self, url, content=None, default_index_file='index.html'):
         url = url.lstrip('/')
+
+        if self._is_unknown_content_type(url):
+            log.warn("Materializing literal file of unknown content type: /%s  "
+                     "(Hint: Add / suffix to treat it as a directory)", url)
 
         log.info("Materializing: /%s", url)
 

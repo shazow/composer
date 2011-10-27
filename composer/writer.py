@@ -23,6 +23,11 @@ class Writer(object):
         self.index = index
 
     def _guess_content_type(self, path):
+        filename = os.path.basename(path)
+
+        if '.' not in filename: # Assume html
+            return 'text/html'
+
         return mimetypes.guess_type(path)[0]
 
     def render_route(self, route):
@@ -51,7 +56,12 @@ class WSGIWriter(Writer):
             start_response('404 NOT FOUND', [('Content-Type', 'text/plain')])
             return ['Not Found']
 
-        content_type = self._guess_content_type(path) or 'text/html'
+        content_type = self._guess_content_type(path)
+        if not content_type:
+            content_type = 'application/octet-stream'
+            log.warn("Serving literal file of unknown content type: /%s  "
+                     "(Hint: Add / suffix to treat it as a directory)", path)
+
         start_response('200 OK', [('Content-Type', content_type)])
         return [content]
 
@@ -83,14 +93,6 @@ class FileWriter(Writer):
         url_path = os.path.join(self.build_path, url)
         return url_path, index_file
 
-    def _is_unknown_content_type(self, url):
-        url = os.path.basename(url)
-
-        if '.' not in url:
-            return False # Assume html
-
-        return self._guess_content_type(url) == None
-
     def _prepare_dir(self, path):
         if not os.path.exists(path):
             os.makedirs(path)
@@ -103,7 +105,7 @@ class FileWriter(Writer):
     def materialize_url(self, url, content=None, default_index_file='index.html'):
         url = url.lstrip('/')
 
-        if self._is_unknown_content_type(url):
+        if not self._guess_content_type(url):
             log.warn("Materializing literal file of unknown content type: /%s  "
                      "(Hint: Add / suffix to treat it as a directory)", url)
 

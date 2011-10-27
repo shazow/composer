@@ -107,4 +107,4 @@ TODO
 License
 =======
 
-See LICENSE.txt (The MIT License)
+The MIT License (see LICENSE.txt)

@@ -95,14 +95,17 @@ what it does best.
 TODO
 ====
 
-Roughly in priority-order: ::
+Roughly in priority-order:
 
 #. More filters
 #. More error handling and exceptions
 #. More Tests
 #. More documentation
-#. ``serve`` mode: Index routes for more efficient lookup.
-#. ``build`` mode: Add mtime-based checking to skip regenerating content that is already current.
+#. Optimize for large content bases:
+
+   #. ``serve`` mode: Index routes for more efficient lookup.
+   #. ``build`` mode: Add mtime-based checking to skip regenerating content that is already current.
+
 #. Scaffolds (with Makefile)
 #. Everything else
 #. Ponies

@@ -123,10 +123,10 @@ Now we can register our FooterFilter in our Index and use it in our Routes: ::
 Composer comes with a few builtin filters whose source should be easy to
 understand and extend. Default registered filters include:
 
-* `mako`: `composer.filters.Mako <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
-* `markdown`: `composer.filters.Markdown <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
-* `rst`: `composer.filters.RestructuredText <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
-* `jinja2`: `composer.filters.Jinja2 <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
+* ``mako``: `composer.filters.Mako <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
+* ``markdown``: `composer.filters.Markdown <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
+* ``rst``: `composer.filters.RestructuredText <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
+* ``jinja2``: `composer.filters.Jinja2 <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
 
 These filters are registered by default within
 ``Index._register_default_filters()``. There are also some builtin unregistered

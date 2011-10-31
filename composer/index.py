@@ -99,7 +99,7 @@ class Index(object):
         "Stub."
         pass
 
-    def register_filter(self, id, filter_cls, kwargs=None):
+    def register_filter(self, id, filter_cls, filter_kwargs=None):
         """
         Instantiate the filter and register it under the given id for this
         Index.
@@ -111,14 +111,14 @@ class Index(object):
             Class or callable which gets the Index instance as the first
             argument and ``\**kwargs`` after that.
 
-        :param kwargs:
+        :param filter_kwargs:
             Dictionary of keyword arguments passed into ``filter_cls``.
 
         :returns: Instantiated filter object in respect to this Index.
         """
-        kwargs = kwargs or {}
-        self.filters[id] = filter = filter_cls(self, **kwargs)
-        self._filters_kwargs_cache[id] = kwargs
+        filter_kwargs = filter_kwargs or {}
+        self.filters[id] = filter = filter_cls(self, **filter_kwargs)
+        self._filters_kwargs_cache[id] = filter_kwargs
         return filter
 
     def _compile_globs(self, globs_or_regexps):
@@ -229,7 +229,7 @@ class Index(object):
 
         for filter_id, filter_conf in d.get('filters', {}).iteritems():
             filter_cls = import_object(filter_conf['class'])
-            index.register_filter(filter_id, filter_cls, kwargs=filter_conf.get('kwargs'))
+            index.register_filter(filter_id, filter_cls, filter_kwargs=filter_conf.get('kwargs'))
 
         return index
 

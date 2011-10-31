@@ -123,15 +123,15 @@ Now we can register our FooterFilter in our Index and use it in our Routes: ::
 Composer comes with a few builtin filters whose source should be easy to
 understand and extend. Default registered filters include:
 
-* `mako`: [composer.filters.Mako](https://github.com/shazow/composer/blob/master/composer/filters.py)
-* `markdown`: [composer.filters.Markdown](https://github.com/shazow/composer/blob/master/composer/filters.py)
-* `rst`: [composer.filters.RestructuredText](https://github.com/shazow/composer/blob/master/composer/filters.py)
-* `jinja2`: [composer.filters.Jinja2](https://github.com/shazow/composer/blob/master/composer/filters.py)
+* `mako`: `composer.filters.Mako https://github.com/shazow/composer/blob/master/composer/filters.py`_
+* `markdown`: `composer.filters.Markdown https://github.com/shazow/composer/blob/master/composer/filters.py`_
+* `rst`: `composer.filters.RestructuredText https://github.com/shazow/composer/blob/master/composer/filters.py`_
+* `jinja2`: `composer.filters.Jinja2 https://github.com/shazow/composer/blob/master/composer/filters.py`_
 
 These filters are registered by default within
 ``Index._register_default_filters()``. There are also some builtin unregistered
 filters (such as
-[composer.filters.MakoContainer](https://github.com/shazow/composer/blob/master/composer/filters.py))
+`composer.filters.MakoContainer https://github.com/shazow/composer/blob/master/composer/filters.py)`_
 which can be registered manually or extended.
 
 
@@ -164,7 +164,7 @@ Roughly in priority-order:
 #. More documentation
 #. Optimize for large content bases:
 
-   #. ``serve`` mode: Index routes for more efficient lookup.
+   #. ``serve`` mode: Index routes for more efficient lookup. (Done)
    #. ``build`` mode: Add mtime-based checking to skip regenerating content that is already current.
 
 #. Scaffolds (with Makefile)

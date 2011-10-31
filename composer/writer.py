@@ -107,7 +107,7 @@ class FileWriter(Writer):
 
         if not self._guess_content_type(url):
             log.warn("Materializing literal file of unknown content type: /%s  "
-                     "(Hint: Add / suffix to treat it as a directory)", url)
+                     "(Hint: Add '/' suffix to treat it as a directory)", url)
 
         log.info("Materializing: /%s", url)
 

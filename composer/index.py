@@ -85,6 +85,8 @@ class Index(object):
         self._register_default_filters()
         self._register_filters()
 
+        self._route_cache = None
+
     def _register_default_filters(self):
         for filter_id, filter_cls in default_filters.iteritems():
             try:
@@ -186,13 +188,16 @@ class Index(object):
         """
         pass
 
-    def get_route(self, url):
-        url = url.lstrip('/')
-
-        # TODO: Should we pre-index this?
+    def _refresh_route_cache(self):
+        self._route_cache = {}
         for route in self.routes:
-            if route.url.lstrip('/') == url:
-                return route
+            self._route_cache[route.url.lstrip('/')] = route
+
+    def get_route(self, url):
+        if self._route_cache is None:
+            self._refresh_route_cache()
+
+        return self._route_cache.get(url.lstrip('/'))
 
     @property
     def routes(self):

@@ -190,8 +190,13 @@ class Index(object):
 
     def _refresh_route_cache(self):
         self._route_cache = {}
-        for route in self.routes:
-            self._route_cache[route.url.lstrip('/')] = route
+
+        for count, route in enumerate(self.routes):
+            url = route.url.lstrip('/')
+            log.debug("Refreshing route cache: /%s", url)
+            self._route_cache[url] = route
+
+        log.info("Cached %d routes.", count+1)
 
     def get_route(self, url):
         if self._route_cache is None:

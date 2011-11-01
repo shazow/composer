@@ -19,7 +19,7 @@ def serve(index, host='localhost', port=8080, debug=True, **kw):
 
     static_routes = dict((index.absolute_url(s.url), index.absolute_path(s.file)) for s in index.static)
 
-    log.info("Adding static routes: %r", static_routes)
+    log.debug("Adding static routes: %r", static_routes)
     app = SharedDataMiddleware(app, static_routes)
 
     run_simple(host, port, app, use_debugger=debug, **kw)

@@ -15,7 +15,7 @@ from .index import Index, import_object
 from .server import serve
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 def serve_command(index, **kw):
     serve(index, use_reloader=True, **kw)
@@ -45,7 +45,7 @@ def build_command(index, build_path='build', clean=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument('-v', '--verbose', dest='verbose', action='count', help="Once for INFO, twice for DEBUG.")
+    parser.add_argument('-v', '--verbose', dest='verbose', action='count', help="Show DEBUG messages")
 
     command_parser = parser.add_subparsers(dest='command', title="Commands")
 
@@ -89,14 +89,11 @@ def main():
 
     args = parser.parse_args()
 
-    logging.basicConfig(format='%(asctime)s %(levelname)-5.5s %(message)s',
-                        level=logging.WARN)
+    logging.basicConfig(format='%(asctime)s %(levelname)-5.5s [%(name)s] %(message)s',
+                        level=logging.INFO)
 
-    if args.verbose > 1:
+    if args.verbose > 0:
         log.setLevel(logging.DEBUG)
-
-    elif args.verbose > 0:
-        log.setLevel(logging.INFO)
 
     # FIXME: Make this next part prettier.
 

@@ -74,7 +74,7 @@ class Mako(Filter):
         self.lookup = mako.lookup.TemplateLookup(**self.template_kw)
 
     def __call__(self, content, route=None):
-        t = mako.template.Template(content, lookup=self.lookup, **self.template_kw)
+        t = mako.template.Template(content, lookup=self.lookup, input_encoding='utf-8', output_encoding='utf-8', encoding_errors='replace')
 
         return str(t.render(index=self.index, route=route))
 

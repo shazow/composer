@@ -47,7 +47,7 @@ We can write an indexer script which will generate our index file. ::
 
         def _generate_routes(self):
             yield Route('foo', 'foo.mako', filters=['mako'])
-            yield Route('post/1', 'posts/1.md', filters=['markdown'])
+            yield Route('post/1', 'posts/1.md', filters=['markdown', 'pygments'])
 
 
     if __name__ == '__main__':
@@ -127,6 +127,7 @@ understand and extend. Default registered filters include:
 * ``markdown``: `composer.filters.Markdown <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
 * ``rst``: `composer.filters.RestructuredText <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
 * ``jinja2``: `composer.filters.Jinja2 <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
+* ``pygments``: `composer.filters.Pygments <https://github.com/shazow/composer/blob/master/composer/filters.py>`_
 
 These filters are registered by default within
 ``Index._register_default_filters()``. There are also some builtin unregistered

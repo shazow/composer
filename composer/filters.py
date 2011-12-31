@@ -5,11 +5,13 @@
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
 import os
+import re
+
 
 try:
-    import markdown2
+    import misaka
 except ImportError:
-    markdown2 = False
+    misaka = False
 
 try:
     import mako.lookup
@@ -27,10 +29,21 @@ try:
 except ImportError:
     jinja2 = False
 
+try:
+    import pygments
+    import pygments.lexers
+    import pygments.formatters
+except ImportError:
+    pygments = False
+
 
 __all__ = ['Filter',
            'Mako', 'MakoContainer', 'Jinja2',
-           'RestructuredText','Markdown']
+           'RestructuredText', 'Markdown',
+           'Pygments']
+
+
+_Default = object()
 
 
 class Filter(object):
@@ -49,12 +62,12 @@ class Filter(object):
 
 
 class Markdown(Filter):
-    def __init__(self, index, **markdown_kw):
-        if not markdown2:
-            raise ImportError("Markdown filter requires the 'markdown2' package to be installed.")
+    def __init__(self, index, extensions=0, render_flags=0):
+        if not misaka:
+            raise ImportError("Markdown filter requires the 'misaka' package to be installed.")
 
         super(Markdown, self).__init__(index)
-        self.converter = markdown2.Markdown(**markdown_kw).convert
+        self.converter = lambda text: misaka.html(text, extensions, render_flags)
 
     def __call__(self, content, route=None):
         return self.converter(content)
@@ -95,7 +108,7 @@ class MakoContainer(Mako):
         self.template = self.lookup.get_template(template)
 
     def __call__(self, content, route=None):
-        return str(self.template.render(index=self.index, body=content, route=route))
+        return str(self.template.render(index=self.index, body=content, route=route, cache_enabled=False))
 
 
 class RestructuredText(Filter):
@@ -139,10 +152,44 @@ class Jinja2(Filter):
         return t.render(index=self.index, route=route)
 
 
+class Pygments(Filter):
+    """
+    Pygmentize Github-style fenced codeblocks.
+
+    Based on code in http://misaka.61924.nl/
+    """
+    def __init__(self, index):
+        if not pygments:
+            raise ImportError("Pygments filter requires the 'pygments' package to be installed.")
+
+        super(Pygments, self).__init__(index)
+
+        self._re_codeblock = re.compile(
+            r'<pre(?: lang="([a-z0-9]+)")?><code(?: class="([a-z0-9]+).*?")?>(.*?)</code></pre>',
+            re.IGNORECASE | re.DOTALL)
+
+    def _unescape_html(self, html):
+        html = html.replace('&lt;', '<')
+        html = html.replace('&gt;', '>')
+        html = html.replace('&amp;', '&')
+        return html.replace('"', '"')
+
+    def _highlight_match(self, match):
+        language, classname, code = match.groups()
+        if (language or classname) is None:
+            return match.group(0)
+        return pygments.highlight(self._unescape_html(code),
+            pygments.lexers.get_lexer_by_name(language or classname),
+            pygments.formatters.HtmlFormatter())
+
+    def __call__(self, content, route=None):
+        return str(self._re_codeblock.sub(self._highlight_match, content))
+
 
 default_filters = {
     'mako': Mako,
     'markdown': Markdown,
     'rst': RestructuredText,
     'jinja2': Jinja2,
+    'pygments': Pygments,
 }

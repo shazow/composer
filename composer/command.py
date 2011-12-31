@@ -33,7 +33,6 @@ def build_command(index, build_path='build', clean=False):
     writer = FileWriter(index, build_path=build_path)
 
     for route in index.routes:
-        log.info("Writing url: %s", route.url)
         writer(route.url)
 
     for static in index.static:

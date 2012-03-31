@@ -67,7 +67,16 @@ class Markdown(Filter):
             raise ImportError("Markdown filter requires the 'misaka' package to be installed.")
 
         super(Markdown, self).__init__(index)
-        self.converter = lambda text: misaka.html(text, extensions, render_flags)
+
+        # Misaka 1.0.1 breaks Github-style fenced code blocks + Pygments, so we override the handler.
+        # See: https://github.com/FSX/misaka/issues/10
+        class GithubishHtmlRenderer(misaka.HtmlRenderer):
+            def block_code(self, text, lang):
+                attr = lang and ' lang="%s"' % lang or ''
+                return '\n<pre%s><code>%s</code></pre>\n' % (attr, text)
+
+        renderer = GithubishHtmlRenderer(render_flags)
+        self.converter = misaka.Markdown(renderer, extensions).render
 
     def __call__(self, content, route=None):
         return self.converter(content)

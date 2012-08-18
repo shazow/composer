@@ -15,7 +15,7 @@ from .index import Index, import_object
 from .server import serve
 
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 def serve_command(index, **kw):
     serve(index, use_reloader=True, **kw)

@@ -1,6 +1,6 @@
 Compose dynamic templates and markup into a static website.
 
-Used to generate `shazow.net <http://shazow.net>`_.
+Used to generate `shazow.net <http://shazow.net>`_ (`source repo <https://github.com/shazow/shazow.net>`_).
 
 Usage
 =====

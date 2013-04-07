@@ -9,9 +9,9 @@ import re
 
 
 try:
-    import misaka
+    import markdown
 except ImportError:
-    misaka = False
+    markdown = False
 
 try:
     import mako.lookup
@@ -62,21 +62,13 @@ class Filter(object):
 
 
 class Markdown(Filter):
-    def __init__(self, index, extensions=0, render_flags=0):
-        if not misaka:
-            raise ImportError("Markdown filter requires the 'misaka' package to be installed.")
+    def __init__(self, index, extensions=None, extension_configs=None):
+        if not markdown:
+            raise ImportError("Markdown filter requires the 'markdown' package to be installed.")
 
         super(Markdown, self).__init__(index)
 
-        # Misaka 1.0.1 breaks Github-style fenced code blocks + Pygments, so we override the handler.
-        # See: https://github.com/FSX/misaka/issues/10
-        class GithubishHtmlRenderer(misaka.HtmlRenderer):
-            def block_code(self, text, lang):
-                attr = lang and ' lang="%s"' % lang or ''
-                return '\n<pre%s><code>%s</code></pre>\n' % (attr, text)
-
-        renderer = GithubishHtmlRenderer(render_flags)
-        self.converter = misaka.Markdown(renderer, extensions).render
+        self.converter = markdown.Markdown(extensions=extensions or [], extension_configs=extension_configs or {}).convert
 
     def __call__(self, content, route=None):
         return self.converter(content)

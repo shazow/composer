@@ -5,9 +5,10 @@
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
 
-import os
+import codecs
 import logging
 import mimetypes
+import os
 
 
 log = logging.getLogger(__name__)
@@ -32,7 +33,8 @@ class Writer(object):
 
     def render_route(self, route):
         file_path = route.file
-        content = open(file_path).read()
+        with codecs.open(file_path, encoding='utf8') as fp:
+            content = fp.read()
 
         for filter_id in route.filters:
             content = self.index.filters[filter_id](content, route=route)
